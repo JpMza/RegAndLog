@@ -128,6 +128,19 @@ public class AccountResource {
             userDTO.getLangKey(), userDTO.getImageUrl());
     }
 
+    @PostMapping("/account/create")
+    public void createAccount(@Valid @RequestBody UserDTO userDTO) {
+        Optional<User> existingUser = userRepository.findOneByEmailIgnoreCase(userDTO.getEmail());
+        if (existingUser.isPresent()) {
+            throw new EmailAlreadyUsedException();
+        }
+        Optional<User> user = userRepository.findOneByLogin(userDTO.getLogin());
+        if (user.isPresent()) {
+            throw new AccountResourceException("User already in use");
+        }
+        userService.createUser(userDTO);
+    }
+
     /**
      * {@code POST  /account/change-password} : changes the current user's password.
      *

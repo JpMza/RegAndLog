@@ -256,7 +256,13 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public Page<UserDTO> getAllManagedUsers(Pageable pageable) {
-        return userRepository.findAllByLoginNot(pageable, Constants.ANONYMOUS_USER).map(UserDTO::new);
+        List<String> excludedUsers = new ArrayList<>();
+            excludedUsers.add(Constants.ANONYMOUS_USER);
+            excludedUsers.add(Constants.SYSTEM_ACCOUNT);
+            excludedUsers.add(Constants.ADMIN_USER);
+            excludedUsers.add("user");
+
+        return userRepository.findDistinctByLoginNotIn(pageable, excludedUsers).map(UserDTO::new);
     }
 
     @Transactional(readOnly = true)
